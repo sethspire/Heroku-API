@@ -1,4 +1,3 @@
-console.log("started")
 const express = require('express')
 require('./db/mongoose')
 
