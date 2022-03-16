@@ -2,6 +2,7 @@ const express = require('express')
 require('./db/mongoose')
 const cors = require('cors');
 const userRouter = require('./routers/users')
+const taskRouter = require('./routers/tasks')
 
 const app = express()
 
@@ -13,6 +14,7 @@ app.use(function(req, res, next) {
     next();
 });
 app.use(userRouter)
+app.use(taskRouter)
 
 const port = process.env.PORT
 
