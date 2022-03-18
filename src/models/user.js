@@ -42,6 +42,12 @@ const userSchema = new Schema(
   }
 )
 
+userSchema.virtual('tasks', {
+  localField: '_id',
+  foreignField: 'owner',
+  ref: 'Task'
+})
+
 userSchema.pre('save', async function(next) {
   
   const user = this
