@@ -85,8 +85,10 @@ router.patch('/tasks', auth, async(req, res) => {
 
 router.delete('/tasks', auth, async (req, res) => {
     try {
-      let testing = await Task.deleteOne({_id: req.body._id, owner: req.user._id})
-      console.log(testing)
+      let delResult = await Task.deleteOne({_id: req.body._id, owner: req.user._id})
+      if (!delResult.deletedCount) {
+        throw new Error()
+      }
       res.send(req.body)
     } 
     catch (e) {
