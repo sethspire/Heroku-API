@@ -51,4 +51,46 @@ router.get('/tasks', auth, async(req, res) => {
     }
 })
 
+router.patch('/tasks', auth, async(req, res) => {
+    const mods = req.body
+    if (!mods['_id']) {
+        return res.status(400).send({ error: 'Requires task ID' })
+    }
+    const task_id = mods['_id']
+    delete mods['_id']
+    const props = Object.keys(mods)
+    const modifiable = ['title', 'description', 'completed']
+    const isValid = props.every((prop) => modifiable.includes(prop))
+    if (!isValid) {
+        return res.status(400).send({ error: 'Invalid updates.' })
+    }
+  
+    try {
+        const task = await Task.findById(task_id)
+        if (!task) {
+            throw new Error()
+        }
+        if (!task.owner.equals(req.user._id)) {
+            console.log(task.owner)
+            console.log(req.user._id)
+            throw new Error()
+        }
+        props.forEach((prop) => task[prop] = mods[prop])
+        await task.save()
+        res.send(task)
+    } catch (e) {
+        res.status(400).send()
+    }
+})
+
+router.delete('/tasks', auth, async (req, res) => {
+    try {
+      await Task.deleteOne({_id: req.body._id})
+      res.send(req.body)
+    } 
+    catch (e) {
+      res.status(500).send()
+    }
+})
+
 module.exports = router

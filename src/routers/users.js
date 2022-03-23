@@ -71,26 +71,6 @@ router.patch('/users/me', auth, async(req, res) => {
   }
 })
 
-router.patch('/users/me', auth, async(req, res) => {
-  const mods = req.body
-  const props = Object.keys(mods)
-  const modifiable = ['email', 'password']
-  const isValid = props.every((prop) => modifiable.includes(prop))
-
-  if (!isValid) {
-      return res.status(400).send({ error: 'Invalid updates.' })
-  }
-
-  try {
-      const user = req.user
-      props.forEach((prop) => user[prop] = mods[prop])
-      await user.save()
-      res.send(user)
-  } catch (e) {
-      res.status(400).send()
-  }
-})
-
 router.delete('/users/me', auth, async (req, res) => {
   try {
     await User.deleteOne({_id: req.user._id})
