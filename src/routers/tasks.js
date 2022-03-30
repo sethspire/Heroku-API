@@ -33,7 +33,6 @@ router.get('/tasks', auth, async(req, res) => {
         match.completed = (req.query.completed === 'true')
     }
     try {
-        console.log('test')
         await req.user.populate({
             path: 'tasks',
             match,
