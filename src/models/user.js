@@ -39,7 +39,11 @@ const userSchema = new Schema(
           type: String,
           required: true
       }
-    }]
+    }],
+
+    avatar: {
+      type: Buffer
+    }
   }
 )
 
@@ -70,12 +74,12 @@ userSchema.pre('deleteOne', {document: true, query: false}, async function(next)
 
 userSchema.methods.toJSON = function() {
   const user = this
-  
   const userObject = user.toObject()
   
   delete userObject.password
-  delete userObject.__v
   delete userObject.tokens
+  delete userObject.__v
+  delete userObject.avatar
   
   return userObject
 }

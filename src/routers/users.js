@@ -1,3 +1,5 @@
+const multer = require('multer')
+const sharp = require('sharp')
 const express = require('express')
 const User = require('../models/user')
 const account = require('../emails/account')
@@ -51,6 +53,7 @@ router.get('/users/me', auth, async (req, res) => {
   res.send(req.user)
 })
 
+//edit user
 router.patch('/users/me', auth, async(req, res) => {
   const mods = req.body
   const props = Object.keys(mods)
@@ -71,6 +74,7 @@ router.patch('/users/me', auth, async(req, res) => {
   }
 })
 
+//delete user
 router.delete('/users/me', auth, async (req, res) => {
   try {
     await req.user.deleteOne()
@@ -79,6 +83,52 @@ router.delete('/users/me', auth, async (req, res) => {
   catch (e) {
     res.status(500).send()
   }
+})
+
+// upload avatar helper function
+const upload = multer({ 
+  limits: {
+    fileSize: 1000000
+  }, 
+  fileFilter(req, file, callback) { 
+    console.log(file)
+    if(!file.originalname.match(/\.(jpg|jpeg|png)/)) { 
+        return callback(new Error('File must be an image'))
+    } 
+    callback(undefined, true) // when no error occurs
+  } 
+})
+
+// upload avatar
+router.post('/users/me/avatar', auth, upload.single('avatar'), async (req, res) => {
+  console.log("got input")
+  const buffer = await sharp(req.file.buffer)
+    .resize({width: 250, height: 250})
+    .png()
+    .toBuffer()    
+
+  req.user.avatar = buffer
+  await req.user.save() 
+  res.send() 
+  }, (error, req, res, next) => {
+  res.status(400).send({ error: error.message }) 
+})
+
+// get avatar
+router.get('/users/me/avatar', auth, async (req, res) => {
+  const user = req.user
+    if (!user.avatar) {
+      return res.status(404).send()
+    }
+    res.set('Content-Type', 'image/png')
+    res.send(user.avatar)
+})
+
+// delete avatar
+router.delete('/users/me/avatar', auth, async (req, res) => {
+  req.user.avatar = undefined
+  await req.user.save()
+  res.send()
 })
 
 module.exports = router
