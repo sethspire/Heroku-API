@@ -88,7 +88,7 @@ router.delete('/users/me', auth, async (req, res) => {
 // upload avatar helper function
 const upload = multer({ 
   limits: {
-    fileSize: 1000000
+    fileSize: 5000000
   }, 
   fileFilter(req, file, callback) { 
     console.log(file)
